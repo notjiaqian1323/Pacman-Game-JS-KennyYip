@@ -26,6 +26,8 @@ window.onload = function(){
     board.width = boardWidth;
     context = board.getContext('2d'); //used for drawing on the board
     loadImage();
+    loadMap();
+    update(); 
 }
 
 function loadImage(){
@@ -95,6 +97,83 @@ const walls = new Set();
 const foods = new Set();
 const ghosts = new Set();
 let pacman;
+
+function loadMap(){
+
+    //reuse the same function for resetting the game 
+    walls.clear();
+    foods.clear();
+    ghosts.clear();
+
+    for(let r=0; r<rowCount; r++){
+        for(let c=0; c<colCount; c++){
+            const row = tileMap[r];
+            const timeMapChar = row[c];
+
+            //x position is the column
+            //scale everything with the timesize
+            const x = c*tileSize;
+            const y = r*tileSize;
+
+            if (timeMapChar == 'X') { //block wall
+                const wall = new Block(wallImage, x, y, tileSize, tileSize);
+                walls.add(wall);
+            }
+            else if(timeMapChar == 'b') {//blue ghosts
+                const ghost = new Block(blueGhostImage, x, y, tileSize, tileSize);
+                ghosts.add(ghost);
+            }
+            else if(timeMapChar == 'o') {//blue ghosts
+                const ghost = new Block(orangeGhostImage, x, y, tileSize, tileSize);
+                ghosts.add(ghost);
+            }
+            else if(timeMapChar == 'p') {//blue ghosts
+                const ghost = new Block(pinkGhostImage, x, y, tileSize, tileSize);
+                ghosts.add(ghost);
+            }
+            else if(timeMapChar == 'r') {//blue ghosts
+                const ghost = new Block(redGhostImage, x, y, tileSize, tileSize);
+                ghosts.add(ghost);
+            }
+            else if(timeMapChar == 'P') {//blue ghosts
+                pacman = new Block(pacmanRightImage, x, y, tileSize, tileSize);
+            }
+            else if(timeMapChar == ' ') {//blue ghosts
+                const food = new Block(null, x + 14, y + 14, 4, 4);
+                foods.add(food);
+            }
+        }
+    }
+}
+
+function update(){
+    //game loop
+    draw();
+    setTimeout(update, 50); //recursive
+    //in a game loop, the draw and update coord keep calling again
+    //if use setinterval -- the function is called in a fix interval instead of dynamic
+    //settimeout, setinterval, requestanimationframe -- depend on the machine
+    //fixed refresh rate of 20fps
+    //set interval called once -- specify how often call the function 
+    //settimeout is similar settimeout(update, 50)
+}
+
+function draw(){
+    //the image we are drawing, the x and y, the width and height
+    context.drawImage(pacman.image, pacman.x, pacman.y, pacman.width, pacman.height);
+    for(let ghost of ghosts.values()){
+        context.drawImage(ghost.image, ghost.x, ghost.y, ghost.width, ghost.height);
+    }
+    for(let wall of walls.values()){
+        context.drawImage(wall.image, wall.x, wall.y, wall.width, wall.height);
+    }
+
+    //draw food as rectangle using fillStyle()
+    context.fillStyle = "white";
+    for(let food of foods.values()){
+        context.fillRect(food.x, food.y, food.width, food.height);
+    }
+}
 
 
 //creating a class for each tile
